@@ -1,45 +1,96 @@
-const express = require("express");
-const bcrypt = require("bcrypt");
-
-const router = express.Router();
 
 const User = require("../models/userModel");
+const { hashedPassword } = require("../helpers/authHelper");
+const { comparePassword } = require("../helpers/authHelper")
+const JWT = require("jsonwebtoken");
 
-router.post("/newuser", async (req, res) => {
-
-    const hashedPassword = async () => {
-        const plainTextPassword = req.body.password
-        const saltRounds = 10;
-        try {
-            const password = await bcrypt.hash(plainTextPassword, saltRounds);
-            return password
-        } catch (error) {
-            return error.meassage
-        }
-    }
-
+const registerController =  async (req, res) => {
     try {
-        const password = await hashedPassword()
+        const { firstName, lastName, email, userName, password } = req.body;
+        if (!(firstName && email && password && lastName && userName)) {
+            return res.send({ message: "All field is required please fill" });
+        }
+        const existinguser = await User.findOne({ email: email });
+        if (existinguser) {
+            return res.status(200).send({
+                success: false,
+                message: "Already registered user",
+            });
+        }
+        const hashpassword = await hashedPassword(password)
         const user = await User.create({
             firstName: req.body.firstName,
             lastName: req.body.lastName,
             userName: req.body.userName,
             email: req.body.email,
-            password : password
+            password: hashpassword
         });
-        return res.status(200).send({ user });
+        return res.status(200).send({
+            success: true,
+            message: "user registerd Successfully",
+            user, });
     } catch (error) {
         console.log("error", error)
+        res.status(500).send({
+            success: false,
+            message: "Error in Registration",
+            err: error.message,
+        });
     }
-})
+}
 
-router.get("/user", async (req, res) => {
+const loginController = async (req,res) => {
     try {
-        const user = await User.find().lean().exec();
-        return res.status(200).send({ user });
-    } catch (error) {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(404).send({
+                success: false,
+                message: "Invalid email or Password",
+            });
+        }
+        //check user
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).send({
+                success: true,
+                message: "Email is not registered",
+            });
+        }
+        const match = await comparePassword(password, user.password);
+        if (!match) {
+            return res.status(404).send({
+                success: true,
+                message: "Invalid Password",
+            });
+        }
 
+        //token
+        const token = await JWT.sign({ _id: user._id }, process.env.JWT_SECRET, {
+            expiresIn: "7d",
+        });
+        res.status(200).send({
+            success: true,
+            message: "login Successfully",
+            user: {
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                userName: user.userName
+            },
+            token,
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            success: false,
+            message: "error in login",
+            error,
+        });
     }
-})
-module.exports = router;
+}
+
+module.exports = {
+    registerController,
+    loginController
+};
 
