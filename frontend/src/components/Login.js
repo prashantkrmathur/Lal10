@@ -1,72 +1,7 @@
-// import React, { useRef, useState } from 'react';
-// import axios from 'axios';
-// import { Form, Button, Card, Alert } from "react-bootstrap";
-// import { Link, useHistory } from 'react-router-dom'
-
-// const Login = () => {
-//     const emailRef = useRef();
-//     const passwordRef = useRef();
-//     const [error, setError] = useState('');
-//     const [loading, setLoading] = useState(false);
-//     const history = useHistory();
-
-//     const handleSubmit = async (event) => {
-//         event.preventDefault();
-//         try {
-//             setError('')
-//             setLoading(true)
-//             const customConfig = {
-//                 headers: {
-//                     'Content-Type': 'application/json'
-//                 }
-//             };
-//             const data = {
-//                 email: emailRef.current.value.trim(),
-//                 password: passwordRef.current.value.trim()
-//             }
-//             console.log("datat",data)
-//             const response = await axios.post("http://localhost:2244/api/user", JSON.stringify(data), customConfig);
-//             console.log("response", response);
-//             history.push('/dashboard')
-
-//         } catch (error) {
-//             setError('Failed to login')
-//         }
-//         setLoading(false)
-//     }
-//     return (
-//         <div style={{ position: 'fixed', top: '10%', left: "44%", marginTop: '-50px', marginLeft: '-100px' }}>
-//             <Card style={{ minWidth: '400px' }}>
-//                 <Card.Body>
-//                     <h2 className='text-center mb-4'>Log In</h2>
-//                     {error && <Alert variant='danger' >{error}</Alert>}
-//                     <Form onSubmit={handleSubmit}>
-//                         <Form.Group id='email' style={{ marginBottom: '15px' }}>
-//                             <Form.Label>Email</Form.Label>
-//                             <Form.Control type='email' ref={emailRef} required></Form.Control>
-//                         </Form.Group>
-//                         <Form.Group id='password' style={{ marginBottom: '15px' }}>
-//                             <Form.Label>Password</Form.Label>
-//                             <Form.Control type='password' ref={passwordRef} required></Form.Control>
-//                         </Form.Group>
-//                         <Button disabled={loading} className='w-100' type='submit'>Log In</Button>
-//                     </Form>
-//                 </Card.Body>
-//             </Card>
-//             <div className='w-100 text-center mt-2'>
-//                 Need an account ? <Link to='/signup'>Sign Up</Link>
-//             </div>
-//         </div>
-//     )
-// }
-
-// export default Login
-
-
 import React, { useState } from 'react';
 import { Button, Form, Input } from 'antd';
 import axios from 'axios';
-import { Link, useHistory } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 
 const layout = {
     labelCol: {
@@ -84,8 +19,8 @@ const tailLayout = {
 };
 const App = () => {
     const formRef = React.useRef(null);
-    const history = useHistory();
     const [error, setError] = useState(null);
+    const [response, setResponse] = useState("");
 
     const fetchData = async (values) => {
         try {
@@ -102,7 +37,9 @@ const App = () => {
     };
     const onFinish = async (values) => {
         console.log(values);
-        fetchData(values) && formRef.current?.resetFields() && history.push('/dashboard')
+        const response =await fetchData(values);
+        setResponse(response)
+        formRef.current?.resetFields()
     };
 
     return (
@@ -114,7 +51,7 @@ const App = () => {
                     marginLeft: "3em",
                     marginBottom: "1em"
                 }}>
-                {error && error.response && error.response.data && error.response.data.message} 
+                {error && error.response && error.response.data && error.response.data.message}
             </div>
             <Form
                 {...layout}
@@ -156,6 +93,10 @@ const App = () => {
             <div className='w-100 text-center mt-2' style={{ marginLeft: "5em" }}>
                 Need an account ? <Link to='/signup'>Sign Up</Link>
             </div>
+            {
+                response && response.data && response.data.success &&
+                <Redirect to={{ pathname: "/dashboard" , state:response.data}}> </Redirect>
+            }
         </div>
     );
 };

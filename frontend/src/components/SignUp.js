@@ -119,7 +119,7 @@ const App = () => {
                     </Button>
                 </Form.Item>
             </Form>
-            <div className='w-100 text-center mt-2' style={{marginLeft:"5em"}}>
+            <div className='w-100 text-center mt-2' style={{ marginLeft: "5em" }}>
                 Have an account  ? <Link to='/login'>Login</Link>
             </div>
         </div>

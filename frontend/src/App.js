@@ -7,12 +7,12 @@ import Dashboard from './components/Dashboard';
 function App() {
   return (
     <Router>
-        <Switch>
-          <Route exact path='/' component={Login} />
-          <Route path='/login' component={Login} />
+      <Switch>
+        <Route exact path='/' component={Login} />
+        <Route path='/login' component={Login} />
         <Route path="/signup" component={SignUp} />
-        <Route path="/dashboard" component = {Dashboard}/>
-        </Switch>
+        <Route path="/dashboard" component={Dashboard} />
+      </Switch>
     </Router>
 
   );
