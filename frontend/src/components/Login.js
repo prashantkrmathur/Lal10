@@ -63,7 +63,7 @@
 // export default Login
 
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button, Form, Input } from 'antd';
 import axios from 'axios';
 import { Link, useHistory } from 'react-router-dom'
@@ -85,23 +85,37 @@ const tailLayout = {
 const App = () => {
     const formRef = React.useRef(null);
     const history = useHistory();
+    const [error, setError] = useState(null);
 
+    const fetchData = async (values) => {
+        try {
+            const customConfig = {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+            const response = await axios.post("http://localhost:2244/api/user", JSON.stringify(values), customConfig);
+            return response;
+        } catch (error) {
+            setError(error); // Store the error in state
+        }
+    };
     const onFinish = async (values) => {
         console.log(values);
-        const customConfig = {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        };
-        const response = await axios.post("http://localhost:2244/api/user", JSON.stringify(values), customConfig);
-        console.log("response", response);
-        formRef.current?.resetFields();
-        history.push('/dashboard')
-
+        fetchData(values) && formRef.current?.resetFields() && history.push('/dashboard')
     };
 
     return (
         <div style={{ textAlign: "-webkit-center", padding: "2em", backgroundColor: "azure" }}>
+            <div className='w-100 text-center mt-2'
+                style={{
+                    fontSize: "x-large",
+                    color: "brown",
+                    marginLeft: "3em",
+                    marginBottom: "1em"
+                }}>
+                {error && error.response && error.response.data && error.response.data.message} 
+            </div>
             <Form
                 {...layout}
                 ref={formRef}
@@ -109,7 +123,6 @@ const App = () => {
                 onFinish={onFinish}
                 style={{
                     maxWidth: 600,
-                    height: 600
                 }}
             >
                 <Form.Item
@@ -140,6 +153,9 @@ const App = () => {
                     </Button>
                 </Form.Item>
             </Form>
+            <div className='w-100 text-center mt-2' style={{ marginLeft: "5em" }}>
+                Need an account ? <Link to='/signup'>Sign Up</Link>
+            </div>
         </div>
     );
 };
