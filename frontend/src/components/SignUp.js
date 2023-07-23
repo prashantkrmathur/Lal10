@@ -27,7 +27,7 @@ const App = () => {
                 'Content-Type': 'application/json'
             }
         };
-        const response = await axios.post("http://localhost:2244/api/newuser", JSON.stringify(values), customConfig);
+        const response = await axios.post("https://tasty-gold-seagull.cyclic.app/api/newuser", JSON.stringify(values), customConfig);
         setResponse(response.data.message)
         formRef.current?.resetFields();
     };

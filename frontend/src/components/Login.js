@@ -29,7 +29,7 @@ const App = () => {
                     'Content-Type': 'application/json'
                 }
             };
-            const response = await axios.post("http://localhost:2244/api/user", JSON.stringify(values), customConfig);
+            const response = await axios.post("https://tasty-gold-seagull.cyclic.app/api/user", JSON.stringify(values), customConfig);
             return response;
         } catch (error) {
             setError(error); // Store the error in state
