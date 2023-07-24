@@ -1,5 +1,6 @@
+Frontend is deployed on Vercel and the link is given below
 
-frontend deployed is deployed on Vercel and the link is given below https://lal10.vercel.app/
+https://lal10.vercel.app/
 
 The backend is deployed on cyclic and the routes are the following :
 
